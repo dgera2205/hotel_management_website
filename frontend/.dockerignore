@@ -1,0 +1,33 @@
+# Git
+.git
+.gitignore
+
+# Dependencies
+node_modules
+
+# Build output
+.next
+out
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Testing
+coverage
+.nyc_output
+
+# Documentation
+*.md
+!README.md
+
+# Docker
+Dockerfile*
+docker-compose*

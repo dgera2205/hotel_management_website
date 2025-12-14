@@ -1,0 +1,14 @@
+.env
+.env.local
+node_modules
+__pycache__
+*.pyc
+.venv
+venv
+target
+dist
+build
+.next
+.svelte-kit
+.playwright-mcp/
+.claude/
