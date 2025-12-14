@@ -36,6 +36,15 @@ interface CalendarDay {
 type SortField = 'check_in_date' | 'check_out_date' | 'guest_name' | 'room_number' | 'total_amount' | 'created_at'
 type SortDirection = 'asc' | 'desc'
 
+// Helper function to format date as YYYY-MM-DD in local timezone
+// This avoids timezone issues when using toISOString() which converts to UTC
+const formatDateLocal = (date: Date): string => {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 export default function BookingsPage() {
   const { token } = useAuth()
   const [rooms, setRooms] = useState<Room[]>([])
@@ -185,7 +194,7 @@ export default function BookingsPage() {
 
       days.push({
         date,
-        dateString: date.toISOString().split('T')[0],
+        dateString: formatDateLocal(date),  // Use local timezone formatting to avoid UTC shift
         isCurrentMonth: date.getMonth() === startDate.getMonth(),
         isToday: date.getTime() === today.getTime()
       })
