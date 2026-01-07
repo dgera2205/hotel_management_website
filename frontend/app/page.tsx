@@ -92,20 +92,20 @@ export default function Home() {
       const todayLocal = new Date().toISOString().split('T')[0]
 
       // Get room summary
-      const roomSummary = await api.get('/rooms/summary')
+      const roomSummary = await api.get('/rooms/summary') as { total_rooms: number; active_rooms: number }
       // Get today's checkins/checkouts - pass today's date to ensure timezone consistency
-      const checkins = await api.get(`/bookings/today/checkins?target_date=${todayLocal}`)
-      const checkouts = await api.get(`/bookings/today/checkouts?target_date=${todayLocal}`)
+      const checkins = await api.get(`/bookings/today/checkins?target_date=${todayLocal}`) as TodayCheckin[]
+      const checkouts = await api.get(`/bookings/today/checkouts?target_date=${todayLocal}`) as TodayCheckout[]
       // Get expense summary for outstanding debt
-      const expenseSummary = await api.get('/expenses/summary')
+      const expenseSummary = await api.get('/expenses/summary') as { total_due: number; total_amount: number }
       // Get revenue summary for this month
       const today = new Date()
       const firstOfMonth = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0]
       const todayStr = today.toISOString().split('T')[0]
-      const revenueSummary = await api.get(`/bookings/revenue/summary?date_from=${firstOfMonth}&date_to=${todayStr}`)
+      const revenueSummary = await api.get(`/bookings/revenue/summary?date_from=${firstOfMonth}&date_to=${todayStr}`) as { total_revenue: number; revenue_collected: number }
       // Get bookings to count occupied rooms
-      const allBookings = await api.get('/bookings/')
-      const occupiedRooms = allBookings.filter((b: { status: string }) => b.status === 'Checked In').length
+      const allBookings = await api.get('/bookings/') as { status: string }[]
+      const occupiedRooms = allBookings.filter((b) => b.status === 'Checked In').length
 
       setTodayCheckins(checkins || [])
       setTodayCheckouts(checkouts || [])

@@ -415,7 +415,7 @@ export default function ReportsPage() {
           </div>
           <div className="mt-4 flex items-center text-sm">
             <span className="text-gray-500">This month: </span>
-            <span className="text-red-600 font-medium ml-1">{formatCurrency(reportData?.expenses.this_month || 0)}</span>
+            <span className="text-red-600 font-medium ml-1">{formatCurrency(reportData?.expenses.total || 0)}</span>
           </div>
         </div>
       </div>

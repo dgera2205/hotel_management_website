@@ -110,5 +110,17 @@ export const api = {
    * Make a POST request with JSON body to the specified endpoint.
    * @template T - Expected response type
    */
-  post: <T>(endpoint: string, data: unknown) => apiRequest<T>(endpoint, { method: 'POST', body: JSON.stringify(data) }),
+  post: <T>(endpoint: string, data: unknown = {}) => apiRequest<T>(endpoint, { method: 'POST', body: JSON.stringify(data) }),
+
+  /**
+   * Make a PUT request with JSON body to the specified endpoint.
+   * @template T - Expected response type
+   */
+  put: <T>(endpoint: string, data: unknown) => apiRequest<T>(endpoint, { method: 'PUT', body: JSON.stringify(data) }),
+
+  /**
+   * Make a DELETE request to the specified endpoint.
+   * @template T - Expected response type
+   */
+  delete: <T>(endpoint: string) => apiRequest<T>(endpoint, { method: 'DELETE' }),
 }

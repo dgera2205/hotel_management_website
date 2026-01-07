@@ -41,6 +41,7 @@ interface User {
  */
 interface AuthContextType {
   user: User | null                                           // Current user or null if not authenticated
+  token: string | null                                        // JWT token for API requests
   isAuthenticated: boolean                                    // Convenience boolean for auth status
   isLoading: boolean                                          // True during initial auth check
   login: (password: string, rememberMe?: boolean) => Promise<void>  // Login function
@@ -97,6 +98,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // State for current authenticated user (null if not authenticated)
   const [user, setUser] = useState<User | null>(null)
 
+  // State for JWT token
+  const [token, setToken] = useState<string | null>(null)
+
   // Loading state during initial authentication check
   const [isLoading, setIsLoading] = useState(true)
 
@@ -106,6 +110,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (storedToken) {
       // Token found in localStorage - attempt to restore session
       setAuthToken(storedToken)  // Set token for API requests
+      setToken(storedToken)      // Store token in state
 
       // Verify token and get user profile
       getHotelUser()
@@ -113,6 +118,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .catch(() => {
           // Token invalid/expired - clear it
           clearToken()
+          setToken(null)
         })
         .finally(() => setIsLoading(false))
     } else {
@@ -127,6 +133,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    */
   const login = useCallback(async (password: string, rememberMe = false) => {
     await loginHotel(password, rememberMe)
+    const storedToken = getToken()
+    if (storedToken) {
+      setToken(storedToken)
+    }
     const userProfile = await getHotelUser()
     setUser(userProfile)
   }, [])
@@ -138,6 +148,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(async () => {
     await logoutHotel()
     clearToken()
+    setToken(null)
     setUser(null)
   }, [])
 
@@ -146,6 +157,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider
       value={{
         user,
+        token,
         isAuthenticated: !!user,
         isLoading,
         login,

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/context/AuthContext'
@@ -50,7 +50,7 @@ const PAYMENT_MODES = [
   'Cheque'
 ]
 
-export default function ExpensesPage() {
+function ExpensesContent() {
   const { token } = useAuth()
   const searchParams = useSearchParams()
   const [expenses, setExpenses] = useState<Expense[]>([])
@@ -655,5 +655,13 @@ export default function ExpensesPage() {
         </div>
       )}
     </div>
+  )
+}
+
+export default function ExpensesPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div></div>}>
+      <ExpensesContent />
+    </Suspense>
   )
 }
