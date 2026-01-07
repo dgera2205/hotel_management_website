@@ -33,6 +33,10 @@ WORKDIR /app
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# Build argument for backend URL (needed at build time for Next.js rewrites)
+ARG BACKEND_URL=http://localhost:8000
+ENV BACKEND_URL=${BACKEND_URL}
+
 # Install dependencies
 COPY package*.json ./
 RUN npm install
@@ -48,27 +52,14 @@ FROM node:20-alpine AS production
 
 WORKDIR /app
 
-# Install wget for healthcheck
-RUN apk add --no-cache wget
-
-# Create non-root user
-RUN addgroup -g 1001 -S appgroup && \
-    adduser -S -u 1001 -G appgroup appuser
-
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Copy built application
-COPY --from=builder --chown=appuser:appgroup /app/.next/standalone ./
-COPY --from=builder --chown=appuser:appgroup /app/.next/static ./.next/static
-COPY --from=builder --chown=appuser:appgroup /app/public ./public
-
-# Switch to non-root user
-USER appuser
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/public ./public
 
 EXPOSE 3000
-
-HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:3000 || exit 1
 
 CMD ["node", "server.js"]
