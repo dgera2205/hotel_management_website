@@ -10,7 +10,7 @@ ENV NODE_OPTIONS="--max-old-space-size=512"
 
 # Install dependencies
 COPY package*.json ./
-RUN npm ci --only=production=false
+RUN npm install
 
 # Copy source
 COPY . .
