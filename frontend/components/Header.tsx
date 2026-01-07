@@ -22,6 +22,7 @@ export function Header() {
     { href: '/', label: 'Dashboard', icon: '🏠' },
     { href: '/rooms', label: 'Rooms', icon: '🏨' },
     { href: '/bookings', label: 'Bookings', icon: '📅' },
+    { href: '/events', label: 'Events', icon: '🎉' },
     { href: '/expenses', label: 'Expenses', icon: '💰' },
     { href: '/reports', label: 'Reports', icon: '📊' },
   ]
@@ -37,8 +38,8 @@ export function Header() {
               </svg>
             </div>
             <div>
-              <h1 className="font-bold text-xl text-gray-900">Hotel Management</h1>
-              <p className="text-xs text-gray-500">Staff Portal</p>
+              <h1 className="font-bold text-xl text-gray-900">Prince Hotel</h1>
+              <p className="text-xs text-gray-500">Management System</p>
             </div>
           </Link>
 
@@ -86,7 +87,7 @@ export function Header() {
       {/* Mobile Navigation */}
       <div className="lg:hidden border-t border-gray-200">
         <div className="px-4 py-3">
-          <div className="grid grid-cols-5 gap-1">
+          <div className="grid grid-cols-6 gap-1">
             {navItems.map((item) => {
               const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href))
               return (

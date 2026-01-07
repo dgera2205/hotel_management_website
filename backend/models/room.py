@@ -1,73 +1,136 @@
+"""
+Room Models Module
+
+This module defines the Room model and related Pydantic schemas for hotel
+room management. Rooms are the core entity of the hotel system, with each
+room having a unique number, type, pricing, and amenities configuration.
+
+Database Table: rooms
+Relationships: One-to-Many with bookings (a room can have multiple bookings)
+"""
+
 from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, Text
 from sqlalchemy.types import Enum
 from database import Base
 from datetime import datetime
 import enum
 
+
+# =============================================================================
+# Enumeration Types
+# =============================================================================
+
 class RoomTypeEnum(str, enum.Enum):
-    SINGLE = "Single"
-    DOUBLE = "Double"
-    DELUXE = "Deluxe"
-    SUITE = "Suite"
-    FAMILY_ROOM = "Family Room"
-    CUSTOM = "Custom"
+    """
+    Available room types in the hotel.
+
+    Values are stored as strings in the database for readability.
+    CUSTOM type allows for user-defined room types via custom_room_type field.
+    """
+    SINGLE = "Single"           # Basic single occupancy room
+    DOUBLE = "Double"           # Standard double occupancy room
+    DELUXE = "Deluxe"           # Premium room with extra amenities
+    SUITE = "Suite"             # Luxury suite with separate living area
+    FAMILY_ROOM = "Family Room" # Larger room for families
+    CUSTOM = "Custom"           # User-defined room type
+
 
 class BedConfigEnum(str, enum.Enum):
-    SINGLE_BED = "Single Bed"
-    DOUBLE_BED = "Double Bed"
-    TWIN_BEDS = "Twin Beds"
-    KING_BED = "King Bed"
+    """
+    Bed configuration options for rooms.
+
+    Determines the sleeping arrangement in the room.
+    """
+    SINGLE_BED = "Single Bed"   # One single bed
+    DOUBLE_BED = "Double Bed"   # One double/queen bed
+    TWIN_BEDS = "Twin Beds"     # Two single beds
+    KING_BED = "King Bed"       # One king-size bed
+
 
 class RoomStatusEnum(str, enum.Enum):
-    ACTIVE = "Active"
-    UNDER_MAINTENANCE = "Under Maintenance"
-    INACTIVE = "Inactive"
+    """
+    Room availability status.
+
+    Controls whether the room can be booked in the calendar view.
+    """
+    ACTIVE = "Active"                       # Available for booking
+    UNDER_MAINTENANCE = "Under Maintenance" # Temporarily unavailable
+    INACTIVE = "Inactive"                   # Permanently unavailable
+
+
+# =============================================================================
+# SQLAlchemy ORM Model
+# =============================================================================
 
 class Room(Base):
+    """
+    SQLAlchemy model representing a hotel room.
+
+    This model stores all room information including identification,
+    configuration, pricing, amenities, and status. Each room is uniquely
+    identified by its room_number.
+
+    Table: rooms
+    Primary Key: id (auto-increment)
+    Unique Constraint: room_number
+    """
     __tablename__ = "rooms"
 
+    # Primary identification
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    room_number = Column(String(20), unique=True, nullable=False, index=True)
+    room_number = Column(String(20), unique=True, nullable=False, index=True)  # e.g., "101", "A-201"
+
+    # Room configuration
     room_type = Column(Enum(RoomTypeEnum), nullable=False)
     bed_configuration = Column(Enum(BedConfigEnum), nullable=False)
     floor_number = Column(Integer, nullable=False)
-    base_price = Column(Float, nullable=False)
-    max_occupancy = Column(Integer, nullable=False, default=2)
+    base_price = Column(Float, nullable=False)  # Price per night in INR
+    max_occupancy = Column(Integer, nullable=False, default=2)  # Maximum guests
     status = Column(Enum(RoomStatusEnum), nullable=False, default=RoomStatusEnum.ACTIVE)
 
-    # Amenities as boolean fields for easy filtering
-    has_ac = Column(Boolean, default=False)
-    has_tv = Column(Boolean, default=False)
-    has_wifi = Column(Boolean, default=False)
-    has_balcony = Column(Boolean, default=False)
-    has_refrigerator = Column(Boolean, default=False)
-    has_mini_bar = Column(Boolean, default=False)
-    has_safe = Column(Boolean, default=False)
-    has_bathtub = Column(Boolean, default=False)
+    # Amenities - boolean flags for easy filtering and display
+    has_ac = Column(Boolean, default=False)           # Air conditioning
+    has_tv = Column(Boolean, default=False)           # Television
+    has_wifi = Column(Boolean, default=False)         # WiFi access
+    has_balcony = Column(Boolean, default=False)      # Private balcony
+    has_refrigerator = Column(Boolean, default=False) # Mini refrigerator
+    has_mini_bar = Column(Boolean, default=False)     # Mini bar
+    has_safe = Column(Boolean, default=False)         # In-room safe
+    has_bathtub = Column(Boolean, default=False)      # Bathtub (vs shower only)
 
-    # Additional fields
-    notes = Column(Text, nullable=True)
-    custom_room_type = Column(String(100), nullable=True)  # For custom room types
+    # Additional information
+    notes = Column(Text, nullable=True)  # Internal notes about the room
+    custom_room_type = Column(String(100), nullable=True)  # Used when room_type is CUSTOM
 
-    # Audit fields
+    # Audit timestamps
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-# Pydantic models for API
+# =============================================================================
+# Pydantic API Schemas
+# =============================================================================
+
 from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import datetime as dt
 
+
 class RoomCreate(BaseModel):
-    room_number: str = Field(..., min_length=1, max_length=20)
+    """
+    Schema for creating a new room.
+
+    All required fields must be provided. Amenity flags default to False.
+    Used for POST /rooms/ endpoint.
+    """
+    room_number: str = Field(..., min_length=1, max_length=20)  # Unique identifier like "101"
     room_type: RoomTypeEnum
     bed_configuration: BedConfigEnum
-    floor_number: int = Field(..., ge=0)
-    base_price: float = Field(..., ge=0)
+    floor_number: int = Field(..., ge=0)       # Floor 0 = ground floor
+    base_price: float = Field(..., ge=0)       # Price per night in INR
     max_occupancy: int = Field(default=2, ge=1, le=10)
     status: RoomStatusEnum = RoomStatusEnum.ACTIVE
 
-    # Amenities
+    # Room amenities - all default to False
     has_ac: bool = False
     has_tv: bool = False
     has_wifi: bool = False
@@ -78,9 +141,16 @@ class RoomCreate(BaseModel):
     has_bathtub: bool = False
 
     notes: Optional[str] = None
-    custom_room_type: Optional[str] = None
+    custom_room_type: Optional[str] = None  # Required if room_type is CUSTOM
+
 
 class RoomUpdate(BaseModel):
+    """
+    Schema for updating an existing room.
+
+    All fields are optional - only provided fields will be updated.
+    Used for PUT /rooms/{id} endpoint.
+    """
     room_type: Optional[RoomTypeEnum] = None
     bed_configuration: Optional[BedConfigEnum] = None
     floor_number: Optional[int] = Field(None, ge=0)
@@ -88,7 +158,7 @@ class RoomUpdate(BaseModel):
     max_occupancy: Optional[int] = Field(None, ge=1, le=10)
     status: Optional[RoomStatusEnum] = None
 
-    # Amenities
+    # Room amenities
     has_ac: Optional[bool] = None
     has_tv: Optional[bool] = None
     has_wifi: Optional[bool] = None
@@ -101,7 +171,14 @@ class RoomUpdate(BaseModel):
     notes: Optional[str] = None
     custom_room_type: Optional[str] = None
 
+
 class RoomResponse(BaseModel):
+    """
+    Schema for room data in API responses.
+
+    Includes all room fields plus audit timestamps.
+    Used for GET /rooms/ and GET /rooms/{id} responses.
+    """
     id: int
     room_number: str
     room_type: RoomTypeEnum
@@ -111,7 +188,7 @@ class RoomResponse(BaseModel):
     max_occupancy: int
     status: RoomStatusEnum
 
-    # Amenities
+    # Room amenities
     has_ac: bool
     has_tv: bool
     has_wifi: bool
@@ -128,12 +205,19 @@ class RoomResponse(BaseModel):
     updated_at: dt
 
     class Config:
+        """Enable ORM mode for SQLAlchemy model conversion."""
         from_attributes = True
 
+
 class RoomSummary(BaseModel):
-    """Summary stats for rooms"""
-    total_rooms: int
-    active_rooms: int
-    inactive_rooms: int
-    under_maintenance: int
-    room_types: dict
+    """
+    Aggregated statistics for room inventory.
+
+    Used for dashboard displays and reporting.
+    Returned by GET /rooms/summary endpoint.
+    """
+    total_rooms: int          # Total number of rooms in the system
+    active_rooms: int         # Rooms available for booking
+    inactive_rooms: int       # Rooms marked as inactive
+    under_maintenance: int    # Rooms under maintenance
+    room_types: dict          # Count of rooms by type (e.g., {"Single": 5, "Double": 10})

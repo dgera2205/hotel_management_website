@@ -359,7 +359,7 @@ export default function Home() {
       <div className="bg-white rounded-xl shadow-sm p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Hotel Management Dashboard</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Prince Hotel Dashboard</h1>
             <p className="text-gray-600 mt-1">
               Welcome back, <span className="font-semibold text-indigo-600">{user?.username}</span>
             </p>

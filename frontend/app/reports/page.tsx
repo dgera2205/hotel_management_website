@@ -31,8 +31,20 @@ interface ReportData {
     total_due: number
     by_category: Record<string, number>
   }
+  events: {
+    total: number
+    revenue: number
+    collected: number
+    pending: number
+    vendor_cost: number
+    vendor_paid: number
+    vendor_pending: number
+    profit_margin: number
+  }
   profit: number
 }
+
+type BookingTypeFilter = 'both' | 'hotel' | 'events'
 
 // Helper to format date as YYYY-MM-DD
 const formatDateForApi = (date: Date) => {
@@ -75,6 +87,7 @@ export default function ReportsPage() {
   const [reportData, setReportData] = useState<ReportData | null>(null)
   const [loading, setLoading] = useState(true)
   const [datePreset, setDatePreset] = useState<'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom'>('month')
+  const [bookingType, setBookingType] = useState<BookingTypeFilter>('both')
 
   // Date range state
   const [dateFrom, setDateFrom] = useState<string>(() => {
@@ -96,7 +109,7 @@ export default function ReportsPage() {
 
   useEffect(() => {
     fetchReportData()
-  }, [dateFrom, dateTo])
+  }, [dateFrom, dateTo, bookingType])
 
   const fetchReportData = async () => {
     try {
@@ -104,7 +117,7 @@ export default function ReportsPage() {
       // Fetch data from multiple endpoints with date filters
       const dateParams = `?date_from=${dateFrom}&date_to=${dateTo}`
 
-      const [roomsRes, bookingsRes, expensesRes, revenueRes] = await Promise.all([
+      const [roomsRes, bookingsRes, expensesRes, revenueRes, eventsRes] = await Promise.all([
         fetch('/api/rooms/summary', {
           headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
         }),
@@ -116,6 +129,9 @@ export default function ReportsPage() {
         }),
         fetch(`/api/bookings/revenue/summary${dateParams}`, {
           headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+        }),
+        fetch(`/api/event-bookings/summary${dateParams}`, {
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
         })
       ])
 
@@ -123,6 +139,7 @@ export default function ReportsPage() {
       const bookings = bookingsRes.ok ? await bookingsRes.json() : []
       const expensesSummary = expensesRes.ok ? await expensesRes.json() : null
       const revenueSummary = revenueRes.ok ? await revenueRes.json() : null
+      const eventsSummary = eventsRes.ok ? await eventsRes.json() : null
 
       // Filter bookings by date range for stats
       const filteredBookings = bookings.filter((b: { check_in_date: string, created_at: string }) => {
@@ -130,10 +147,45 @@ export default function ReportsPage() {
         return bookingDate >= dateFrom && bookingDate <= dateTo
       })
 
-      // Use new revenue endpoint for accurate daily-distributed revenue
-      const totalRevenue = revenueSummary?.total_revenue || 0
-      const paidRevenue = revenueSummary?.revenue_collected || 0
-      const pendingRevenue = revenueSummary?.revenue_pending || 0
+      // Hotel revenue from existing bookings
+      const hotelRevenue = revenueSummary?.total_revenue || 0
+      const hotelPaid = revenueSummary?.revenue_collected || 0
+      const hotelPending = revenueSummary?.revenue_pending || 0
+
+      // Event revenue data (matching backend EventBookingSummary field names)
+      const eventRevenue = eventsSummary?.total_revenue || 0
+      const eventCollected = eventsSummary?.total_collected || 0
+      const eventPending = eventsSummary?.revenue_pending || 0
+      const eventVendorCost = eventsSummary?.total_expenses || 0
+      const eventVendorPaid = eventsSummary?.total_paid || 0
+      const eventVendorPending = eventsSummary?.expenses_pending || 0
+      const eventProfitMargin = eventsSummary?.total_profit || 0
+      const eventCount = eventsSummary?.total_events || 0
+
+      // Calculate totals based on booking type filter
+      let totalRevenue = 0
+      let paidRevenue = 0
+      let pendingRevenue = 0
+      let totalExpenses = expensesSummary?.total_amount || 0
+
+      if (bookingType === 'hotel') {
+        totalRevenue = hotelRevenue
+        paidRevenue = hotelPaid
+        pendingRevenue = hotelPending
+      } else if (bookingType === 'events') {
+        totalRevenue = eventRevenue
+        paidRevenue = eventCollected
+        pendingRevenue = eventPending
+        // For events, vendor costs are the expenses
+        totalExpenses = eventVendorCost
+      } else {
+        // Both
+        totalRevenue = hotelRevenue + eventRevenue
+        paidRevenue = hotelPaid + eventCollected
+        pendingRevenue = hotelPending + eventPending
+        // Add event vendor costs to expenses
+        totalExpenses = (expensesSummary?.total_amount || 0) + eventVendorCost
+      }
 
       // Calculate booking stats
       const bookingStats = {
@@ -171,13 +223,23 @@ export default function ReportsPage() {
         },
         bookings: bookingStats,
         expenses: {
-          total: expensesSummary?.total_amount || 0,
+          total: totalExpenses,
           paid: expensesSummary?.paid_amount || 0,
           pending: expensesSummary?.pending_amount || 0,
           total_due: expensesSummary?.total_due || 0,
           by_category: expensesSummary?.expense_by_category || {}
         },
-        profit: totalRevenue - (expensesSummary?.total_amount || 0)
+        events: {
+          total: eventCount,
+          revenue: eventRevenue,
+          collected: eventCollected,
+          pending: eventPending,
+          vendor_cost: eventVendorCost,
+          vendor_paid: eventVendorPaid,
+          vendor_pending: eventVendorPending,
+          profit_margin: eventProfitMargin
+        },
+        profit: totalRevenue - totalExpenses
       })
     } catch (err) {
       console.error('Failed to fetch report data:', err)
@@ -215,6 +277,19 @@ export default function ReportsPage() {
       {/* Date Filter Section */}
       <div className="bg-white p-4 rounded-xl shadow-sm">
         <div className="flex flex-wrap items-center gap-4">
+          <div className="flex items-center space-x-2">
+            <label className="text-sm font-medium text-gray-700">Type:</label>
+            <select
+              value={bookingType}
+              onChange={(e) => setBookingType(e.target.value as BookingTypeFilter)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+            >
+              <option value="both">Both (Hotel + Events)</option>
+              <option value="hotel">Hotel Only</option>
+              <option value="events">Events Only</option>
+            </select>
+          </div>
+
           <div className="flex items-center space-x-2">
             <label className="text-sm font-medium text-gray-700">Period:</label>
             <select
@@ -508,6 +583,53 @@ export default function ReportsPage() {
           </div>
         </div>
       </div>
+
+      {/* Events Summary - Only shown when Events are included */}
+      {(bookingType === 'both' || bookingType === 'events') && (reportData?.events.total || 0) > 0 && (
+        <div className="bg-white p-6 rounded-xl shadow-sm">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Events Summary</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="p-4 bg-purple-50 rounded-lg">
+              <p className="text-sm text-purple-600 font-medium">Total Events</p>
+              <p className="text-2xl font-bold text-purple-800">{reportData?.events.total || 0}</p>
+            </div>
+            <div className="p-4 bg-blue-50 rounded-lg">
+              <p className="text-sm text-blue-600 font-medium">Event Revenue</p>
+              <p className="text-2xl font-bold text-blue-800">{formatCurrency(reportData?.events.revenue || 0)}</p>
+            </div>
+            <div className="p-4 bg-green-50 rounded-lg">
+              <p className="text-sm text-green-600 font-medium">Customer Collected</p>
+              <p className="text-2xl font-bold text-green-800">{formatCurrency(reportData?.events.collected || 0)}</p>
+            </div>
+            <div className="p-4 bg-yellow-50 rounded-lg">
+              <p className="text-sm text-yellow-600 font-medium">Customer Pending</p>
+              <p className="text-2xl font-bold text-yellow-800">{formatCurrency(reportData?.events.pending || 0)}</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+            <div className="p-4 bg-red-50 rounded-lg">
+              <p className="text-sm text-red-600 font-medium">Vendor Costs</p>
+              <p className="text-2xl font-bold text-red-800">{formatCurrency(reportData?.events.vendor_cost || 0)}</p>
+            </div>
+            <div className="p-4 bg-teal-50 rounded-lg">
+              <p className="text-sm text-teal-600 font-medium">Vendor Paid</p>
+              <p className="text-2xl font-bold text-teal-800">{formatCurrency(reportData?.events.vendor_paid || 0)}</p>
+            </div>
+            <div className="p-4 bg-orange-50 rounded-lg">
+              <p className="text-sm text-orange-600 font-medium">Vendor Pending</p>
+              <p className="text-2xl font-bold text-orange-800">{formatCurrency(reportData?.events.vendor_pending || 0)}</p>
+            </div>
+            <div className={`p-4 rounded-lg ${(reportData?.events.profit_margin || 0) >= 0 ? 'bg-green-50' : 'bg-red-50'}`}>
+              <p className={`text-sm font-medium ${(reportData?.events.profit_margin || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                Profit Margin
+              </p>
+              <p className={`text-2xl font-bold ${(reportData?.events.profit_margin || 0) >= 0 ? 'text-green-800' : 'text-red-800'}`}>
+                {formatCurrency(reportData?.events.profit_margin || 0)}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

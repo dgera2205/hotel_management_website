@@ -35,10 +35,19 @@ class BookingStatusEnum(str, enum.Enum):
     CANCELLED = "Cancelled"
     NO_SHOW = "No Show"
 
+
+class BookingTypeEnum(str, enum.Enum):
+    """Type of booking - Hotel room or Event"""
+    HOTEL = "Hotel"
+    EVENT = "Event"
+
 class Booking(Base):
     __tablename__ = "bookings"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+
+    # Booking Type (Hotel or Event - for reports filtering)
+    booking_type = Column(Enum(BookingTypeEnum), nullable=False, default=BookingTypeEnum.HOTEL)
 
     # Guest Information
     guest_name = Column(String(200), nullable=False)
@@ -128,6 +137,8 @@ class BookingServiceResponse(BaseModel):
         from_attributes = True
 
 class BookingCreate(BaseModel):
+    booking_type: BookingTypeEnum = BookingTypeEnum.HOTEL
+
     guest_name: str = Field(..., min_length=1, max_length=200)
     guest_phone: str = Field(..., min_length=10, max_length=20)
     guest_email: Optional[str] = None
@@ -157,6 +168,8 @@ class BookingCreate(BaseModel):
         return v
 
 class BookingUpdate(BaseModel):
+    booking_type: Optional[BookingTypeEnum] = None
+
     guest_name: Optional[str] = Field(None, min_length=1, max_length=200)
     guest_phone: Optional[str] = Field(None, min_length=10, max_length=20)
     guest_email: Optional[str] = None
@@ -183,6 +196,8 @@ class BookingUpdate(BaseModel):
 
 class BookingResponse(BaseModel):
     id: int
+    booking_type: BookingTypeEnum
+
     guest_name: str
     guest_phone: str
     guest_email: Optional[str]

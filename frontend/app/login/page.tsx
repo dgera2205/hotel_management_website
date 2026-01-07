@@ -37,7 +37,7 @@ export default function LoginPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H7m2 0v-5a2 2 0 012-2h2a2 2 0 012 2v5m0-9V9a2 2 0 00-2-2H9a2 2 0 00-2 2v2.22" />
               </svg>
             </div>
-            <h1 className="text-3xl font-bold text-slate-800">Hotel Management</h1>
+            <h1 className="text-3xl font-bold text-slate-800">Prince Hotel</h1>
             <p className="text-slate-500 mt-2">Enter the staff password to access the system</p>
           </div>
 
@@ -87,7 +87,7 @@ export default function LoginPage() {
 
           <div className="mt-6 text-center">
             <p className="text-xs text-slate-400">
-              For hotel staff only • Password: hotel2024admin
+              For authorized hotel staff only
             </p>
           </div>
         </div>

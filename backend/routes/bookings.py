@@ -102,6 +102,7 @@ async def create_booking(
     # Manually construct response to avoid lazy loading issues
     return BookingResponse(
         id=booking.id,
+        booking_type=booking.booking_type,
         guest_name=booking.guest_name,
         guest_phone=booking.guest_phone,
         guest_email=booking.guest_email,
@@ -441,6 +442,7 @@ async def get_booking(booking_id: int, db: AsyncSession = Depends(get_db)):
     # Manually construct response to avoid lazy loading issues
     return BookingResponse(
         id=booking.id,
+        booking_type=booking.booking_type,
         guest_name=booking.guest_name,
         guest_phone=booking.guest_phone,
         guest_email=booking.guest_email,
@@ -521,6 +523,7 @@ async def update_booking(
     # Manually construct response to avoid lazy loading issues
     return BookingResponse(
         id=booking.id,
+        booking_type=booking.booking_type,
         guest_name=booking.guest_name,
         guest_phone=booking.guest_phone,
         guest_email=booking.guest_email,
