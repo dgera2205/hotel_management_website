@@ -26,9 +26,13 @@ const nextConfig = {
       },
     ],
   },
-  // Proxy API requests to backend (for Railway/production deployment)
+  // Proxy API requests to backend (for Docker/local development)
+  // For Northflank/cloud deployment, use NEXT_PUBLIC_API_URL instead
   async rewrites() {
-    const backendUrl = process.env.BACKEND_URL || 'http://backend:8000'
+    const backendUrl = process.env.BACKEND_URL
+    if (!backendUrl) {
+      return []
+    }
     return [
       {
         source: '/api/:path*',
