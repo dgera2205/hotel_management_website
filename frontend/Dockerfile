@@ -20,6 +20,9 @@ RUN npm install
 # Copy source
 COPY . .
 
+# Debug: Print the API URL being used
+RUN echo "NEXT_PUBLIC_API_URL is: $NEXT_PUBLIC_API_URL"
+
 # Build with reduced memory
 RUN npm run build
 
