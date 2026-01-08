@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/context/AuthContext'
+import { API_URL } from '@/lib/api'
 
 interface ServiceData {
   service_type: string
@@ -164,7 +165,7 @@ export default function NewEventPage() {
         services: mappedServices,
       }
 
-      const response = await fetch('/api/event-bookings/', {
+      const response = await fetch(`${API_URL}/event-bookings/`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

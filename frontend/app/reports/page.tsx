@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/context/AuthContext'
+import { API_URL } from '@/lib/api'
 
 interface ReportData {
   revenue: {
@@ -118,19 +119,19 @@ export default function ReportsPage() {
       const dateParams = `?date_from=${dateFrom}&date_to=${dateTo}`
 
       const [roomsRes, bookingsRes, expensesRes, revenueRes, eventsRes] = await Promise.all([
-        fetch('/api/rooms/summary', {
+        fetch(`${API_URL}/rooms/summary`, {
           headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
         }),
-        fetch(`/api/bookings/${dateParams}`, {
+        fetch(`${API_URL}/bookings/${dateParams}`, {
           headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
         }),
-        fetch(`/api/expenses/summary${dateParams}`, {
+        fetch(`${API_URL}/expenses/summary${dateParams}`, {
           headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
         }),
-        fetch(`/api/bookings/revenue/summary${dateParams}`, {
+        fetch(`${API_URL}/bookings/revenue/summary${dateParams}`, {
           headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
         }),
-        fetch(`/api/event-bookings/summary${dateParams}`, {
+        fetch(`${API_URL}/event-bookings/summary${dateParams}`, {
           headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
         })
       ])

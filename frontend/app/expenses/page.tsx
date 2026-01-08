@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/context/AuthContext'
+import { API_URL } from '@/lib/api'
 
 interface Expense {
   id: number
@@ -85,7 +86,7 @@ function ExpensesContent() {
   const fetchExpenses = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/expenses/', {
+      const response = await fetch(`${API_URL}/expenses/`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -104,7 +105,7 @@ function ExpensesContent() {
 
   const fetchSummary = async () => {
     try {
-      const response = await fetch('/api/expenses/summary', {
+      const response = await fetch(`${API_URL}/expenses/summary`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -132,7 +133,7 @@ function ExpensesContent() {
     e.preventDefault()
 
     try {
-      const url = editingExpense ? `/api/expenses/${editingExpense.id}` : '/api/expenses/'
+      const url = editingExpense ? `${API_URL}/expenses/${editingExpense.id}` : `${API_URL}/expenses/`
       const method = editingExpense ? 'PUT' : 'POST'
 
       // Build payload, only include optional fields if they have values
@@ -190,7 +191,7 @@ function ExpensesContent() {
     if (!confirm('Are you sure you want to delete this expense?')) return
 
     try {
-      const response = await fetch(`/api/expenses/${id}`, {
+      const response = await fetch(`${API_URL}/expenses/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` },
       })

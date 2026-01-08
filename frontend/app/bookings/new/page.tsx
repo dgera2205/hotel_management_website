@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/context/AuthContext'
+import { API_URL } from '@/lib/api'
 
 interface Room {
   id: number
@@ -83,7 +84,7 @@ function NewBookingContent() {
 
   const fetchRooms = async () => {
     try {
-      const response = await fetch('/api/rooms/', {
+      const response = await fetch(`${API_URL}/rooms/`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -134,7 +135,7 @@ function NewBookingContent() {
         room_id: parseInt(formData.room_id),
       }
 
-      const response = await fetch('/api/bookings/', {
+      const response = await fetch(`${API_URL}/bookings/`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

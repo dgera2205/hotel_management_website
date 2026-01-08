@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/context/AuthContext'
+import { API_URL } from '@/lib/api'
 
 interface Room {
   id: number
@@ -102,7 +103,7 @@ export default function EditBookingPage() {
   const fetchBooking = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/bookings/${bookingId}`, {
+      const response = await fetch(`${API_URL}/bookings/${bookingId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -142,7 +143,7 @@ export default function EditBookingPage() {
 
   const fetchRooms = async () => {
     try {
-      const response = await fetch('/api/rooms/', {
+      const response = await fetch(`${API_URL}/rooms/`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -205,7 +206,7 @@ export default function EditBookingPage() {
         booking_source: formData.booking_source,
       }
 
-      const response = await fetch(`/api/bookings/${bookingId}`, {
+      const response = await fetch(`${API_URL}/bookings/${bookingId}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

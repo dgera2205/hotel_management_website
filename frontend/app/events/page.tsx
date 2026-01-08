@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/context/AuthContext'
+import { API_URL } from '@/lib/api'
 
 interface EventBooking {
   id: number
@@ -43,7 +44,7 @@ export default function EventsPage() {
   const fetchEvents = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/event-bookings/', {
+      const response = await fetch(`${API_URL}/event-bookings/`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',

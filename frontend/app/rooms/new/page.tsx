@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/context/AuthContext'
+import { API_URL } from '@/lib/api'
 
 interface RoomFormData {
   room_number: string
@@ -113,7 +114,7 @@ export default function NewRoomPage() {
         custom_room_type: formData.room_type === 'Custom' ? formData.custom_room_type : null,
       }
 
-      const response = await fetch('/api/rooms/', {
+      const response = await fetch(`${API_URL}/rooms/`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

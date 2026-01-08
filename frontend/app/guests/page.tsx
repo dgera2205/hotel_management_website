@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/context/AuthContext'
+import { API_URL } from '@/lib/api'
 
 interface Guest {
   id: number
@@ -53,7 +54,7 @@ export default function GuestsPage() {
   const fetchGuests = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/guests/', {
+      const response = await fetch(`${API_URL}/guests/`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -79,7 +80,7 @@ export default function GuestsPage() {
     e.preventDefault()
 
     try {
-      const url = editingGuest ? `/api/guests/${editingGuest.id}` : '/api/guests/'
+      const url = editingGuest ? `${API_URL}/guests/${editingGuest.id}` : `${API_URL}/guests/`
       const method = editingGuest ? 'PUT' : 'POST'
 
       const response = await fetch(url, {
@@ -108,7 +109,7 @@ export default function GuestsPage() {
     if (!confirm('Are you sure you want to delete this guest?')) return
 
     try {
-      const response = await fetch(`/api/guests/${id}`, {
+      const response = await fetch(`${API_URL}/guests/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` },
       })

@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/context/AuthContext'
+import { API_URL } from '@/lib/api'
 
 interface Room {
   id: number
@@ -63,7 +64,7 @@ export default function BookingsPage() {
 
   const fetchRooms = async () => {
     try {
-      const response = await fetch('/api/rooms/', {
+      const response = await fetch(`${API_URL}/rooms/`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -106,7 +107,7 @@ export default function BookingsPage() {
   const fetchBookings = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/bookings/', {
+      const response = await fetch(`${API_URL}/bookings/`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -128,7 +129,7 @@ export default function BookingsPage() {
 
     try {
       setActionLoading(bookingId)
-      const response = await fetch(`/api/bookings/${bookingId}/check-in`, {
+      const response = await fetch(`${API_URL}/bookings/${bookingId}/check-in`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -154,7 +155,7 @@ export default function BookingsPage() {
 
     try {
       setActionLoading(bookingId)
-      const response = await fetch(`/api/bookings/${bookingId}/check-out`, {
+      const response = await fetch(`${API_URL}/bookings/${bookingId}/check-out`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
