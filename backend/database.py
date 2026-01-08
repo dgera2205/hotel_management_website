@@ -9,14 +9,25 @@ The async configuration allows non-blocking database operations, which is
 essential for handling concurrent requests efficiently.
 """
 
+import ssl
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker, declarative_base
 from config import settings
 
+# Create SSL context for secure database connections (required by cloud providers)
+ssl_context = ssl.create_default_context()
+ssl_context.check_hostname = False
+ssl_context.verify_mode = ssl.CERT_NONE
+
 # Create async database engine
 # echo=True enables SQL query logging (useful for debugging, disable in production)
 # The async_database_url property converts postgresql:// to postgresql+asyncpg://
-engine = create_async_engine(settings.async_database_url, echo=True)
+# connect_args with ssl handles cloud PostgreSQL SSL requirements
+engine = create_async_engine(
+    settings.async_database_url,
+    echo=True,
+    connect_args={"ssl": ssl_context} if "asyncpg" in settings.async_database_url else {}
+)
 
 # Session factory for creating database sessions
 # expire_on_commit=False prevents objects from being expired after commit,
