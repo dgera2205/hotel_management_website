@@ -2,9 +2,14 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Backend URL for API proxy
+# Backend URL for API proxy (used by rewrites in local/Docker dev)
 ARG BACKEND_URL=http://localhost:8000
 ENV BACKEND_URL=${BACKEND_URL}
+
+# Public API URL for direct backend calls (used in cloud deployments)
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_OPTIONS="--max-old-space-size=512"
 
