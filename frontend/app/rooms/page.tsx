@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/context/AuthContext'
+import { API_URL } from '@/lib/api'
 
 interface Room {
   id: number
@@ -53,7 +54,7 @@ export default function RoomsPage() {
   const fetchRooms = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/rooms/', {
+      const response = await fetch(`${API_URL}/rooms/`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -75,7 +76,7 @@ export default function RoomsPage() {
 
   const fetchSummary = async () => {
     try {
-      const response = await fetch('/api/rooms/summary', {
+      const response = await fetch(`${API_URL}/rooms/summary`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -97,7 +98,7 @@ export default function RoomsPage() {
     }
 
     try {
-      const response = await fetch(`/api/rooms/${roomId}`, {
+      const response = await fetch(`${API_URL}/rooms/${roomId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

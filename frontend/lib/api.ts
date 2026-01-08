@@ -20,13 +20,7 @@
 // Base API URL configuration
 // In Docker: Uses nginx proxy at /api (defined in NEXT_PUBLIC_API_URL)
 // In development: Falls back to /api which is proxied by nginx
-const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api'
-
-// Debug: Export for browser console inspection
-if (typeof window !== 'undefined') {
-  console.log('API_URL configured as:', API_URL)
-  ;(window as unknown as Record<string, string>).__API_URL__ = API_URL
-}
+export const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api'
 
 // In-memory storage for the current authentication token
 // This is set during login and used for all subsequent requests
