@@ -143,21 +143,15 @@ async def get_expense_summary(
     total_result = await db.execute(total_query_stmt)
     total_amount = float(total_result.scalar() or 0)
 
-    # Paid amount - expenses with status "Paid"
-    paid_filters = [Expense.status == ExpenseStatusEnum.PAID]
+    # Paid amount - sum of amount_paid across all expenses
+    paid_query_stmt = select(func.coalesce(func.sum(Expense.amount_paid), 0))
     if date_filters:
-        paid_filters.extend(date_filters)
-    paid_query_stmt = select(func.coalesce(func.sum(Expense.amount), 0)).where(and_(*paid_filters))
+        paid_query_stmt = paid_query_stmt.where(and_(*date_filters))
     paid_result = await db.execute(paid_query_stmt)
     paid_amount = float(paid_result.scalar() or 0)
 
-    # Pending amount - expenses with status "Pending"
-    pending_filters = [Expense.status == ExpenseStatusEnum.PENDING]
-    if date_filters:
-        pending_filters.extend(date_filters)
-    pending_query_stmt = select(func.coalesce(func.sum(Expense.amount), 0)).where(and_(*pending_filters))
-    pending_result = await db.execute(pending_query_stmt)
-    pending_amount = float(pending_result.scalar() or 0)
+    # Pending amount - total amount minus paid amount
+    pending_amount = total_amount - paid_amount
 
     # Total due - calculated as (amount - amount_paid) for pending expenses
     # This ensures accuracy even if amount_due field wasn't properly set

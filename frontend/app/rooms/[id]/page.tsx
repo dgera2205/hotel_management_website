@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/context/AuthContext'
+import { API_URL } from '@/lib/api'
 
 interface Room {
   id: number
@@ -59,7 +60,7 @@ export default function RoomDetailPage() {
   const fetchRoomDetails = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/rooms/${roomId}`, {
+      const response = await fetch(`${API_URL}/rooms/${roomId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -81,7 +82,7 @@ export default function RoomDetailPage() {
 
   const fetchRecentBookings = async () => {
     try {
-      const response = await fetch(`/api/rooms/${roomId}/bookings?limit=5`, {
+      const response = await fetch(`${API_URL}/rooms/${roomId}/bookings?limit=5`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -101,7 +102,7 @@ export default function RoomDetailPage() {
     if (!room) return
 
     try {
-      const response = await fetch(`/api/rooms/${roomId}`, {
+      const response = await fetch(`${API_URL}/rooms/${roomId}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -130,7 +131,7 @@ export default function RoomDetailPage() {
     }
 
     try {
-      const response = await fetch(`/api/rooms/${roomId}`, {
+      const response = await fetch(`${API_URL}/rooms/${roomId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

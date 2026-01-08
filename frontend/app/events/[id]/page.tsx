@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/context/AuthContext'
+import { API_URL } from '@/lib/api'
 
 interface VendorPayment {
   id: number
@@ -96,7 +97,7 @@ export default function EventDetailPage() {
   const fetchEvent = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/event-bookings/${eventId}`, {
+      const response = await fetch(`${API_URL}/event-bookings/${eventId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -146,7 +147,7 @@ export default function EventDetailPage() {
     setSaving(true)
 
     try {
-      const response = await fetch(`/api/event-bookings/${eventId}`, {
+      const response = await fetch(`${API_URL}/event-bookings/${eventId}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -172,7 +173,7 @@ export default function EventDetailPage() {
     setSaving(true)
 
     try {
-      const response = await fetch(`/api/event-bookings/${eventId}/services/${serviceId}`, {
+      const response = await fetch(`${API_URL}/event-bookings/${eventId}/services/${serviceId}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -201,7 +202,7 @@ export default function EventDetailPage() {
 
     setSaving(true)
     try {
-      const response = await fetch(`/api/event-bookings/${eventId}/customer-payments`, {
+      const response = await fetch(`${API_URL}/event-bookings/${eventId}/customer-payments`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -237,7 +238,7 @@ export default function EventDetailPage() {
 
     setSaving(true)
     try {
-      const response = await fetch(`/api/event-bookings/${eventId}/services/${serviceId}/vendor-payments`, {
+      const response = await fetch(`${API_URL}/event-bookings/${eventId}/services/${serviceId}/vendor-payments`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -273,7 +274,7 @@ export default function EventDetailPage() {
 
     setSaving(true)
     try {
-      const response = await fetch(`/api/event-bookings/${eventId}/services`, {
+      const response = await fetch(`${API_URL}/event-bookings/${eventId}/services`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -310,7 +311,7 @@ export default function EventDetailPage() {
 
     setSaving(true)
     try {
-      const response = await fetch(`/api/event-bookings/${eventId}/services/${serviceId}`, {
+      const response = await fetch(`${API_URL}/event-bookings/${eventId}/services/${serviceId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -332,7 +333,7 @@ export default function EventDetailPage() {
   const updateStatus = async (newStatus: string) => {
     setSaving(true)
     try {
-      const response = await fetch(`/api/event-bookings/${eventId}`, {
+      const response = await fetch(`${API_URL}/event-bookings/${eventId}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -358,7 +359,7 @@ export default function EventDetailPage() {
 
     setSaving(true)
     try {
-      const response = await fetch(`/api/event-bookings/${eventId}`, {
+      const response = await fetch(`${API_URL}/event-bookings/${eventId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/context/AuthContext'
+import { API_URL } from '@/lib/api'
 
 interface Room {
   id: number
@@ -109,7 +110,7 @@ export default function EditRoomPage() {
   const fetchRoom = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/rooms/${roomId}`, {
+      const response = await fetch(`${API_URL}/rooms/${roomId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -190,7 +191,7 @@ export default function EditRoomPage() {
       if (formData.notes) submitData.notes = formData.notes
       if (formData.custom_room_type) submitData.custom_room_type = formData.custom_room_type
 
-      const response = await fetch(`/api/rooms/${roomId}`, {
+      const response = await fetch(`${API_URL}/rooms/${roomId}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

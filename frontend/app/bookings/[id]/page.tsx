@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/context/AuthContext'
+import { API_URL } from '@/lib/api'
 
 interface BookingService {
   id: number
@@ -108,7 +109,7 @@ export default function BookingDetailPage() {
 
   const fetchServices = async () => {
     try {
-      const response = await fetch(`/api/bookings/${bookingId}/services`, {
+      const response = await fetch(`${API_URL}/bookings/${bookingId}/services`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -126,7 +127,7 @@ export default function BookingDetailPage() {
   const fetchBooking = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/bookings/${bookingId}`, {
+      const response = await fetch(`${API_URL}/bookings/${bookingId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -151,7 +152,7 @@ export default function BookingDetailPage() {
 
     try {
       setActionLoading(true)
-      const response = await fetch(`/api/bookings/${bookingId}/check-in`, {
+      const response = await fetch(`${API_URL}/bookings/${bookingId}/check-in`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -177,7 +178,7 @@ export default function BookingDetailPage() {
 
     try {
       setActionLoading(true)
-      const response = await fetch(`/api/bookings/${bookingId}/check-out`, {
+      const response = await fetch(`${API_URL}/bookings/${bookingId}/check-out`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -201,7 +202,7 @@ export default function BookingDetailPage() {
   const handleCancel = async () => {
     try {
       setActionLoading(true)
-      const response = await fetch(`/api/bookings/${bookingId}/cancel?refund_advance=${refundAdvance}`, {
+      const response = await fetch(`${API_URL}/bookings/${bookingId}/cancel?refund_advance=${refundAdvance}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -228,7 +229,7 @@ export default function BookingDetailPage() {
 
     try {
       setActionLoading(true)
-      const response = await fetch(`/api/bookings/${bookingId}`, {
+      const response = await fetch(`${API_URL}/bookings/${bookingId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -258,7 +259,7 @@ export default function BookingDetailPage() {
 
     try {
       setActionLoading(true)
-      const response = await fetch(`/api/bookings/${bookingId}/collect-payment?amount=${amount}&payment_mode=${paymentMode}`, {
+      const response = await fetch(`${API_URL}/bookings/${bookingId}/collect-payment?amount=${amount}&payment_mode=${paymentMode}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -302,7 +303,7 @@ export default function BookingDetailPage() {
         params.append('notes', newItem.notes.trim())
       }
 
-      const response = await fetch(`/api/bookings/${bookingId}/services?${params}`, {
+      const response = await fetch(`${API_URL}/bookings/${bookingId}/services?${params}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -331,7 +332,7 @@ export default function BookingDetailPage() {
 
     try {
       setActionLoading(true)
-      const response = await fetch(`/api/bookings/${bookingId}/services/${serviceId}`, {
+      const response = await fetch(`${API_URL}/bookings/${bookingId}/services/${serviceId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
